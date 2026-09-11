@@ -1,0 +1,28 @@
+# deps + build outputs (reinstalled/rebuilt in the image)
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/.cache
+
+# git + local state
+.git
+.gitignore
+
+# local database (a fresh one is created in the container)
+cfo.db
+cfo.db-shm
+cfo.db-wal
+
+# secrets — never bake into the image (use `fly secrets`)
+.env
+.env.*
+!.env.example
+
+# things the app doesn't need at runtime
+hedera-prev-tokenization-winner
+deck
+covers
+apps/web/vercel.json
+DEPLOY.md
+step.txt
