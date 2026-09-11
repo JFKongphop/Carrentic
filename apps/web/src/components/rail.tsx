@@ -1,0 +1,164 @@
+"use client";
+
+import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Car, Coins, MessageSquare, Users } from "lucide-react";
+
+import type { RailBadges } from "~/server/chrome";
+import { useChatDock } from "~/components/chat/dock";
+import { OlLogo } from "~/components/logo";
+
+interface Entry {
+  readonly href: string;
+  readonly label: string;
+  readonly icon: LucideIcon;
+  readonly exact?: boolean;
+  /** Dimmed on the rail: the page only teases what the section will be. */
+  readonly soon?: boolean;
+}
+
+/** Carrentic keeps it to one story: see the car, tokenize a car, see owners & rent. */
+const ENTRIES: readonly Entry[] = [
+  {
+    href: "/fleet",
+    label: "Fleet — the car & how it works",
+    icon: Car,
+  },
+  { href: "/issue", label: "Tokenize a car", icon: Coins },
+  { href: "/accounts", label: "Owners & rent", icon: Users },
+];
+
+const BADGE: Record<string, keyof RailBadges> = {
+  "/fleet": "monitor",
+};
+
+function RailTip({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className={`group relative flex ${className ?? ""}`}>
+      {children}
+      <span
+        role="tooltip"
+        className="border-border bg-card pointer-events-none absolute top-1/2 left-full z-50 ml-2 -translate-y-1/2 rounded-md border px-2 py-1 text-[11px] whitespace-nowrap opacity-0 transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100"
+      >
+        {label}
+      </span>
+    </span>
+  );
+}
+
+const TARGET =
+  "text-muted-foreground hover:bg-secondary hover:text-foreground relative grid size-10 cursor-pointer place-items-center rounded-md transition-colors data-[active=true]:bg-secondary data-[active=true]:text-accent";
+
+export function Rail({
+  badges,
+  ledgerBad,
+}: {
+  badges: RailBadges;
+  ledgerBad: boolean;
+}) {
+  const pathname = usePathname();
+  const dock = useChatDock();
+
+  // Tooltips are absolutely positioned past the right edge; any overflow rule
+  // here clips them, and CSS cannot scroll one axis while leaving the other visible.
+  return (
+    <nav
+      aria-label="Sections"
+      className="border-border bg-card flex w-14 shrink-0 flex-col items-center gap-1 border-r pt-3 pb-4"
+    >
+      <RailTip label="Carrentic">
+        <span
+          aria-label="Carrentic"
+          className="border-border text-accent mb-2 grid size-8 place-items-center rounded-md border"
+        >
+          <OlLogo size={16} />
+        </span>
+      </RailTip>
+
+      {ENTRIES.map((entry) => {
+        const active = entry.exact
+          ? pathname === entry.href
+          : pathname.startsWith(entry.href);
+        const slot = BADGE[entry.href];
+        const badge = slot === undefined ? 0 : badges[slot];
+        const Icon = entry.icon;
+        const ingestBadge = false;
+
+        return (
+          <RailTip key={entry.href} label={entry.label}>
+            <Link
+              href={entry.href}
+              data-active={active}
+              aria-label={entry.label}
+              aria-current={active ? "page" : undefined}
+              className={
+                entry.soon
+                  ? `${TARGET} opacity-45 hover:opacity-100 data-[active=true]:opacity-100`
+                  : TARGET
+              }
+            >
+              {active ? (
+                <span
+                  aria-hidden
+                  className="bg-accent absolute -left-2 h-5 w-0.5 rounded-full"
+                />
+              ) : null}
+              <Icon size={17} strokeWidth={1.75} />
+              {ingestBadge && badge === 0 ? (
+                <span
+                  role="status"
+                  aria-label="Ingest running"
+                  className="bg-accent absolute -top-0.5 -right-0.5 size-1.5 animate-pulse rounded-full"
+                />
+              ) : null}
+              {badge > 0 ? (
+                <span
+                  role={ingestBadge ? "status" : undefined}
+                  aria-label={
+                    ingestBadge
+                      ? `Ingest running — ${badge} to review`
+                      : undefined
+                  }
+                  className={`bg-accent text-accent-foreground absolute -top-0.5 -right-0.5 min-w-4 rounded-full px-1 text-[10px] leading-4 tabular-nums ${ingestBadge ? "animate-pulse" : ""}`}
+                >
+                  {badge > 99 ? "99+" : badge}
+                </span>
+              ) : null}
+            </Link>
+          </RailTip>
+        );
+      })}
+
+      <div className="flex-1" />
+
+      <RailTip label="Chat" className="lg:hidden">
+        <button
+          type="button"
+          aria-label="Chat"
+          aria-expanded={dock.open}
+          onClick={() => dock.setOpen(!dock.open)}
+          className={TARGET}
+        >
+          <MessageSquare size={17} strokeWidth={1.75} />
+        </button>
+      </RailTip>
+
+      {ledgerBad ? (
+        <span
+          role="status"
+          aria-label="Ledger stale"
+          className="bg-destructive mt-2 size-1.5 rounded-full"
+        />
+      ) : null}
+    </nav>
+  );
+}
