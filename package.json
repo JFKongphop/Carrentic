@@ -1,0 +1,39 @@
+{
+  "name": "openledger-cfo",
+  "description": "A personal CFO agent with terminal, powered by OpenLedger",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "engines": {
+    "node": "^22.21.0 || >=24",
+    "pnpm": "^10.19.0"
+  },
+  "packageManager": "pnpm@10.19.0",
+  "scripts": {
+    "build": "turbo run build",
+    "clean": "git clean -xdf node_modules",
+    "clean:workspaces": "turbo run clean",
+    "bootstrap": "pnpm db:push && pnpm demo",
+    "bootstrap:empty": "pnpm db:push && turbo run empty -F @openledger-cfo/demo",
+    "db:push": "pnpm -F @openledger-cfo/db push",
+    "demo": "turbo run demo -F @openledger-cfo/demo --",
+    "demo:generate": "turbo run demo:generate -F @openledger-cfo/demo --",
+    "dev": "turbo watch dev -F @openledger-cfo/web...",
+    "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
+    "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
+    "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
+    "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
+    "reset": "turbo run reset -F @openledger-cfo/demo",
+    "serve": "pnpm -F @openledger-cfo/web start",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@aquartier/openledger": "^0.23.3",
+    "@openledger-cfo/prettier-config": "workspace:*",
+    "dotenv-cli": "^10.0.0",
+    "prettier": "catalog:",
+    "turbo": "^2.5.8",
+    "typescript": "catalog:"
+  },
+  "prettier": "@openledger-cfo/prettier-config"
+}
