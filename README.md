@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="covers/icon.png" alt="Carrentic" width="120" />
+  <img src="covers/1.png" alt="Carrentic — Own the car. Earn its rent." width="100%" />
 </p>
 
 # Carrentic — Own the car. Earn its rent.
