@@ -77,6 +77,22 @@ export function StatusBar({
   const entry = newestUseful(useCliLog().entries);
   const exitCode = entry?.exitCode ?? null;
 
+  // The ledger is optional. When it isn't available (any deploy without the
+  // `oled` CLI) don't show the alarming red "LEDGER UNAVAILABLE" / oled strip —
+  // the manager runs on live on-chain + Uniswap data, not the ledger.
+  if (!chrome.ok) {
+    return (
+      <footer className="border-border bg-card flex h-6 items-center gap-2 border-t px-3 text-[10px] tabular-nums">
+        <span aria-hidden className="bg-accent size-1.5 rounded-full" />
+        <span className="text-muted-foreground shrink-0">
+          Live on Hedera testnet
+        </span>
+        <span className="min-w-0 flex-1" />
+        <AiWord configured={aiConfigured} ledgerOk={true} />
+      </footer>
+    );
+  }
+
   return (
     <footer className="border-border bg-card flex h-6 items-center gap-4 border-t px-3 text-[10px] tabular-nums">
       <span
