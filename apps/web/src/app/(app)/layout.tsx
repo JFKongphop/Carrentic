@@ -23,7 +23,10 @@ export default async function AppLayout(props: { children: React.ReactNode }) {
   const [chrome, badges, gateway] = await Promise.all([
     loadChrome(),
     loadRailBadges(),
-    readGateway(),
+    // readGateway hits the control-plane DB; on a serverless deploy with no
+    // seeded DB that read fails, so degrade to "no gateway" instead of 500ing
+    // the whole layout.
+    readGateway().catch(() => undefined),
   ]);
 
   return (
