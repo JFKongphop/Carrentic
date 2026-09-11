@@ -1,0 +1,329 @@
+<!doctype html>
+<!--
+  Carrentic — 1-minute pitch deck (cyberpunk, matches the landing page)
+  Asset-led walkthrough: the car → tokenize → own → earn → proof → close.
+  Self-contained: no external URLs, live particle-network background.
+  →/space next · ←/backspace prev · F fullscreen · S speaker notes · 1-7 jump
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrentic · Own the car. Earn its rent.</title>
+<style>
+/* The frontend's typeface — Geist Mono (variable), bundled next to this file. */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal; font-weight: 100 900; font-display: block;
+  src: url('./GeistMono.woff2') format('woff2');
+}
+:root {
+  --font: 'Geist Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --bg: #080b09;
+  --panel: rgba(20,26,22,0.55);
+  --ink: #e9efe9;
+  --ink-2: #9aa39b;
+  --ink-3: #5f6b62;
+  --accent: #b8f24a;   /* lime — the brand */
+  --magenta: #ff4d9d;  /* Uniswap-ish neon */
+  --violet: #a98bff;   /* Hedera-ish neon */
+  --cyan: #4be0d0;     /* OpenAI-ish neon */
+  --border: rgba(184,242,74,0.16);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; font-family: var(--font); color: var(--ink);
+  -webkit-font-smoothing: antialiased; overflow: hidden; background: var(--bg);
+}
+
+#net { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#veil { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 30% 45%, rgba(8,11,9,0.35) 0%, rgba(8,11,9,0.72) 55%, rgba(8,11,9,0.92) 100%); }
+
+#viewport { position: fixed; inset: 0; display: grid; place-items: center; z-index: 1; }
+#stage { width: 1600px; height: 900px; position: relative; overflow: hidden;
+  transform-origin: center; background: transparent; }
+
+.slide {
+  position: absolute; inset: 0; padding: 120px 120px 104px;
+  display: flex; flex-direction: column; justify-content: center; gap: 32px;
+  opacity: 0; visibility: hidden; transform: translateY(12px);
+  transition: opacity 380ms var(--ease), transform 380ms var(--ease);
+}
+.slide.active { opacity: 1; visibility: visible; transform: none; }
+
+/* type */
+.kicker { font-size: 17px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent); }
+.display { font-size: 96px; font-weight: 700; line-height: 1.02; letter-spacing: -0.02em; max-width: 20ch; text-wrap: balance; }
+.display.big { font-size: 112px; line-height: 0.98; }
+.lead { font-size: 29px; font-weight: 400; line-height: 1.45; color: var(--ink-2); max-width: 46ch; }
+.a { color: var(--accent); } .m { color: #ffffff; } .v { color: #ffffff; } .c { color: var(--accent); }
+.dim { color: var(--ink-3); }
+.lead .a, .lead .m, .lead .v, .lead .c { font-weight: 700; }
+
+/* giant faded step number in the corner — signals the walkthrough */
+.stepno { position: absolute; top: 84px; right: 120px; font-size: 240px; font-weight: 700;
+  line-height: 0.8; letter-spacing: -0.05em; color: rgba(184,242,74,0.11); z-index: -1; }
+
+/* slide-1 hero: the live Porsche, auto-rotating. It's a transparent iframe to
+   the running app (/showcase), so the network shows around it. Needs the app
+   on :3001; if it's down, this area is simply empty. */
+.hero-car { position: absolute; right: -20px; top: 50%; transform: translateY(-50%); z-index: -1;
+  width: 920px; height: 760px; border: 0; background: #080b09; pointer-events: none;
+  -webkit-mask-image: radial-gradient(58% 58% at 50% 50%, #000 34%, transparent 100%);
+  mask-image: radial-gradient(58% 58% at 50% 50%, #000 34%, transparent 100%); }
+
+/* asset stat row */
+.stats { display: flex; gap: 60px; flex-wrap: wrap; }
+.stat .n { font-size: 46px; font-weight: 700; letter-spacing: -0.01em; }
+.stat .n.a { color: var(--accent); }
+.stat .l { font-size: 15px; color: var(--ink-3); letter-spacing: 0.16em; text-transform: uppercase; margin-top: 8px; }
+
+/* brand mark — the "C" ring, like the app */
+.brand { position: absolute; top: 66px; left: 120px; display: flex; align-items: center; gap: 16px; }
+.c-mark { width: 56px; height: 56px; border-radius: 13px; border: 1.5px solid var(--border);
+  background: var(--panel); display: grid; place-items: center; }
+.c-mark svg { width: 30px; height: 30px; }
+.wm { font-size: 30px; font-weight: 700; letter-spacing: -0.01em; color: var(--accent); }
+.wm .dot { color: var(--accent); }
+
+/* bottom mono strip */
+.foot { position: absolute; left: 120px; right: 120px; bottom: 66px; font-size: 19px; color: var(--ink-3); }
+.foot b { color: var(--ink); font-weight: 600; }
+.foot .sep { color: var(--border); margin: 0 14px; }
+.foot .dotmark { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--accent); margin-right:10px; vertical-align: middle; }
+
+/* neon chips */
+.flow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.fpill { display: inline-flex; align-items: center; gap: 9px; padding: 13px 22px; border-radius: 999px;
+  background: var(--panel); border: 1px solid var(--border); font-size: 22px; font-weight: 600; color: var(--ink); }
+.fpill.v { border-color: rgba(255,255,255,0.4); color: #ffffff; }
+.fpill.m { border-color: rgba(255,255,255,0.4); color: #ffffff; }
+.fpill.c { border-color: rgba(184,242,74,0.45); color: var(--accent); }
+.farr { color: var(--ink-3); font-size: 24px; }
+
+/* builds */
+[data-frag] { opacity: 0; transform: translateY(8px); transition: opacity 320ms var(--ease), transform 320ms var(--ease); }
+[data-frag].on { opacity: 1; transform: none; }
+
+/* proof pills + terminal line */
+.proof { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 999px;
+  background: var(--panel); border: 1px solid var(--border); font-size: 18px; color: var(--ink-2); }
+.pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+.pill .dot.v { background: #ffffff; } .pill .dot.m { background: #ffffff; } .pill .dot.c { background: var(--accent); }
+.pill b { color: var(--ink); font-weight: 600; }
+.term { display: inline-flex; align-self: flex-start; align-items: center; gap: 12px; margin: 22px 0 4px;
+  padding: 14px 22px; border-radius: 12px; border: 1px solid var(--border); font-size: 22px; color: var(--ink); }
+.term .p { color: var(--accent); }
+.term b { color: #fff; font-weight: 600; }
+.term .tag { font-size: 13px; letter-spacing: 0.02em; color: var(--ink-3); border-left: 1px solid var(--border); padding-left: 12px; }
+
+/* chrome */
+#counter { position: absolute; right: 40px; bottom: 30px; font-size: 15px; color: var(--ink-3); font-variant-numeric: tabular-nums; letter-spacing: 0.08em; z-index: 20; }
+#notes { position: fixed; left: 0; right: 0; bottom: 0; background: #0b0f0d; color: var(--ink); padding: 20px 28px;
+  font-size: 15px; line-height: 1.55; border-top: 2px solid var(--accent); transform: translateY(101%);
+  transition: transform 240ms var(--ease); z-index: 100; max-height: 42vh; overflow-y: auto; }
+#notes.open { transform: none; }
+#notes .n-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-3); margin-bottom: 9px; }
+#notes .vo { color: #fff; font-size: 17px; }
+#notes .vo b { color: var(--accent); }
+#hint { position: fixed; left: 20px; bottom: 16px; font-size: 12px; color: rgba(233,239,233,0.28); letter-spacing: 0.04em; z-index: 20; transition: opacity 400ms var(--ease); }
+</style>
+</head>
+<body>
+<canvas id="net"></canvas>
+<div id="veil"></div>
+<div id="viewport">
+  <div id="stage">
+
+    <!-- 1. TITLE -->
+    <section class="slide s-title" data-notes='{"vo":"This is Carrentic — own the car, earn its rent.","t":"0:00-0:06"}'>
+      <iframe class="hero-car" src="http://localhost:3001/showcase?car=porsche&transparent=1&paint=1&spin=1&speed=6" title="Porsche 911" scrolling="no"></iframe>
+      <div class="brand">
+        <div class="c-mark"><svg viewBox="0 0 256 256"><path d="M178.8 71.5A76 76 0 1 0 178.8 184.5" fill="none" stroke="#b8f24a" stroke-width="34" stroke-linecap="round"/></svg></div>
+        <span class="wm">carrentic<span class="dot">.</span></span>
+      </div>
+      <div class="display" style="font-size:94px; max-width:13ch;">Own the car<br><span class="a">Earn its rent</span></div>
+      <div class="lead" style="max-width:34ch;">Fractional car ownership<br>tokenized on <span class="v">Hedera</span><br>rent paid back to owners on-chain<br>priced by <span class="m">Uniswap</span></div>
+      <div class="foot"><span class="dotmark"></span><b>Hedera testnet</b><span class="sep">·</span><b>ERC-3643</b><span class="sep">·</span><b>Uniswap</b><span class="sep">·</span><b>OpenAI</b></div>
+    </section>
+
+    <!-- 2. THE ASSET -->
+    <section class="slide" data-notes='{"vo":"It starts with a real car — a real vehicle worth real money. That car is the asset behind every token.","t":"0:06-0:16"}'>
+      <div class="kicker">the asset</div>
+      <div class="display big">It starts with a<br><span class="a">real car</span></div>
+      <div class="lead" data-frag="1">A real vehicle<br>worth real money<br>the asset behind every token Carrentic mints</div>
+      <div class="stats" data-frag="2">
+        <div class="stat"><div class="n a">$180K</div><div class="l">car value</div></div>
+        <div class="stat"><div class="n">1,000</div><div class="l">ownership shares</div></div>
+        <div class="stat"><div class="n">~$140<span style="font-size:22px">/day</span></div><div class="l">rent it earns</div></div>
+      </div>
+    </section>
+
+    <!-- 3. STEP 01 · TOKENIZE -->
+    <section class="slide" data-notes='{"vo":"First, the car is tokenized — it becomes an ERC-3643 security token on Hedera, split into a thousand shares, minted in a single click. No wallet: the platform signs as operator.","t":"0:16-0:28"}'>
+      <div class="stepno">01</div>
+      <div class="kicker">01 · tokenize the car</div>
+      <div class="display">The car becomes<br>an <span class="a">ERC-3643</span> token</div>
+      <div class="lead" data-frag="1" style="max-width:52ch;">On <span class="v">Hedera</span>, via the Asset Tokenization Studio<br>split into 1,000 shares and minted in one click.<br>No wallet: the platform signs as operator.</div>
+      <div class="foot" data-frag="2"><b>deploy</b> → grant roles → grant KYC → <b>issue 1,000 shares</b><span class="sep">·</span>verifiable on HashScan</div>
+    </section>
+
+    <!-- 4. STEP 02 · OWN A SHARE -->
+    <section class="slide" data-notes='{"vo":"Then people buy in. KYC-gated co-owners each hold a slice of the car, and compliance is enforced by the token itself non-compliant transfers simply revert.","t":"0:28-0:38"}'>
+      <div class="stepno">02</div>
+      <div class="kicker">02 · own a share</div>
+      <div class="display">Three owners<br><span class="a">one car</span></div>
+      <div class="lead" data-frag="1">KYC-gated co-owners each hold a slice. Compliance is enforced by the token itself non-compliant transfers just revert.</div>
+      <div class="flow" data-frag="2">
+        <span class="fpill">0xdb3e… · 85%</span>
+        <span class="fpill">0xc494… · 10%</span>
+        <span class="fpill">0x1c85… · 5%</span>
+      </div>
+    </section>
+
+    <!-- 5. STEP 03 · EARN ITS RENT -->
+    <section class="slide" data-notes='{"vo":"Now it earns. The car gets rented out, and the rent is split pro-rata and paid back to every owner on-chain — priced through Uniswap, and run by an AI fleet manager.","t":"0:38-0:48"}'>
+      <div class="stepno">03</div>
+      <div class="kicker">03 · earn its rent</div>
+      <div class="display">The car pays<br>its <span class="a">owners</span></div>
+      <div class="lead" data-frag="1">Rented out, the rent is split pro-rata and paid back on-chain — priced through <span class="m">Uniswap</span>, run by an <span class="c">AI</span> fleet manager.</div>
+      <div class="flow" data-frag="2">
+        <span class="fpill">Rented out</span><span class="farr">→</span>
+        <span class="fpill m">Rent · priced on Uniswap</span><span class="farr">→</span>
+        <span class="fpill a">Paid to owners on-chain</span>
+      </div>
+    </section>
+
+    <!-- 6. LIVE / PROOF -->
+    <section class="slide" data-notes='{"vo":"And it is all live. One click deploys the token and mints the shares, owners and value are on-chain, and every transaction is verifiable on HashScan.","t":"0:48-0:56","shots":["/issue: one click deploys the ERC-3643 token + mints 1,000 shares.|4s","Open the CAR TOKEN on HashScan — real, on testnet.|2s","/fleet + /accounts: owners and Uniswap-priced value.|2s"]}'>
+      <div class="kicker">live · on-chain</div>
+      <div class="display">Not a mockup<br><span class="a">it's on Hedera</span></div>
+      <div class="lead" data-frag="1">One click deploys the token and mints the shares. Owners, value and rent are on-chain, priced by <span class="m">Uniswap</span>, every tx verifiable on HashScan.</div>
+      <div class="proof" data-frag="2">
+        <span class="pill"><span class="dot v"></span>token <b>0.0.10478278</b> · testnet</span>
+        <span class="pill"><span class="dot m"></span><b>Uniswap</b>-priced value</span>
+        <span class="pill"><span class="dot c"></span><b>AI</b> fleet manager</span>
+      </div>
+    </section>
+
+    <!-- 7. CLOSE -->
+    <section class="slide s-title" data-notes='{"vo":"That is Carrentic — a real car, tokenized on Hedera, earning rent for its owners on-chain.","t":"0:56-1:00"}'>
+      <div class="brand">
+        <div class="c-mark"><svg viewBox="0 0 256 256"><path d="M178.8 71.5A76 76 0 1 0 178.8 184.5" fill="none" stroke="#b8f24a" stroke-width="34" stroke-linecap="round"/></svg></div>
+        <span class="wm">carrentic<span class="dot">.</span></span>
+      </div>
+      <div class="display" style="max-width:22ch;">Own the car<br><span class="a">Earn its rent</span></div>
+      <div class="term"><span class="p">▸</span> a real car, tokenized on <b>Hedera</b><span class="tag">rent paid back on-chain · run by an AI</span></div>
+      <div class="proof">
+        <span class="pill"><span class="dot v"></span>Hedera <b>ERC-3643 · ATS</b></span>
+        <span class="pill"><span class="dot m"></span>priced on <b>Uniswap</b></span>
+        <span class="pill"><span class="dot c"></span><b>OpenAI</b> fleet manager</span>
+      </div>
+    </section>
+
+    <div id="counter">1 / 7</div>
+  </div>
+</div>
+
+<div id="notes"></div>
+<div id="hint">← → navigate · F fullscreen · S notes</div>
+
+<script>
+/* cyberpunk particle network — the landing page's aether, as the deck backdrop */
+(function () {
+  var cvs = document.getElementById('net'); var ctx = cvs.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var W, H, pts = [];
+  var RGB = '166,244,197';
+  function seed() {
+    var count = Math.round((W * H) / (dpr * dpr) / 15000);
+    count = Math.max(40, Math.min(120, count));
+    pts = [];
+    for (var i = 0; i < count; i++) {
+      pts.push({ x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.16 * dpr, vy: (Math.random() - 0.5) * 0.16 * dpr,
+        r: (Math.random() * 1.4 + 0.6) * dpr });
+    }
+  }
+  function resize() {
+    W = cvs.width = window.innerWidth * dpr; H = cvs.height = window.innerHeight * dpr;
+    cvs.style.width = window.innerWidth + 'px'; cvs.style.height = window.innerHeight + 'px'; seed();
+  }
+  var LINK = 150 * dpr;
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i]; p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
+    }
+    for (var a = 0; a < pts.length; a++) {
+      for (var b = a + 1; b < pts.length; b++) {
+        var dx = pts[a].x - pts[b].x, dy = pts[a].y - pts[b].y;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (d < LINK) {
+          ctx.strokeStyle = 'rgba(' + RGB + ',' + (0.16 * (1 - d / LINK)) + ')';
+          ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pts[a].x, pts[a].y); ctx.lineTo(pts[b].x, pts[b].y); ctx.stroke();
+        }
+      }
+    }
+    for (var k = 0; k < pts.length; k++) {
+      ctx.fillStyle = 'rgba(' + RGB + ',0.55)';
+      ctx.beginPath(); ctx.arc(pts[k].x, pts[k].y, pts[k].r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener('resize', resize); resize(); frame();
+})();
+
+/* deck engine */
+(function () {
+  var stage = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var counter = document.getElementById('counter');
+  var notesEl = document.getElementById('notes');
+  var hint = document.getElementById('hint');
+  var i = 0, f = 0, notesOpen = false;
+
+  function maxFrag(s) { var n = 0; s.querySelectorAll('[data-frag]').forEach(function (el) { n = Math.max(n, parseInt(el.dataset.frag, 10) || 0); }); return n; }
+  function paintFrags() { slides[i].querySelectorAll('[data-frag]').forEach(function (el) { el.classList.toggle('on', (parseInt(el.dataset.frag, 10) || 0) <= f); }); }
+  function fit() { var pad = notesOpen ? 0.72 : 1; var s = Math.min(window.innerWidth / 1600, (window.innerHeight * pad) / 900); stage.style.transform = 'scale(' + s + ')'; }
+  function renderNotes() {
+    var raw = slides[i].dataset.notes; if (!raw) { notesEl.innerHTML = ''; return; }
+    var n; try { n = JSON.parse(raw); } catch (e) { return; }
+    var html = '<div class="n-title">Slide ' + (i + 1) + ' · ' + (n.t || '') + '</div><div class="vo">' + n.vo + '</div>';
+    if (n.shots) { html += '<ol style="margin:10px 0 0 20px; display:flex; flex-direction:column; gap:5px;">'; n.shots.forEach(function (s) { var p = s.split('|'); html += '<li>' + p[0] + ' <span style="color:var(--accent)">' + (p[1] || '') + '</span></li>'; }); html += '</ol>'; }
+    notesEl.innerHTML = html;
+  }
+  function show(n, atEnd) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    f = atEnd ? maxFrag(slides[i]) : 0;
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === i); });
+    counter.textContent = (i + 1) + ' / ' + slides.length;
+    paintFrags(); renderNotes();
+  }
+  function next() { if (f < maxFrag(slides[i])) { f++; paintFrags(); } else if (i < slides.length - 1) show(i + 1); }
+  function prev() { if (f > 0) { f--; paintFrags(); } else if (i > 0) show(i - 1, true); }
+  document.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'ArrowDown') { e.preventDefault(); next(); }
+    else if (k === 'ArrowLeft' || k === 'Backspace' || k === 'PageUp' || k === 'ArrowUp') { e.preventDefault(); prev(); }
+    else if (k === 'Home') show(0);
+    else if (k === 'End') show(slides.length - 1, true);
+    else if (k === 'f' || k === 'F') { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }
+    else if (k === 's' || k === 'S') { notesOpen = !notesOpen; notesEl.classList.toggle('open', notesOpen); fit(); }
+    else if (k >= '1' && k <= '9') show(parseInt(k, 10) - 1);
+  });
+  document.addEventListener('click', function (e) { if (e.target.closest('a')) return; if (e.clientX > window.innerWidth / 2) next(); else prev(); });
+  window.addEventListener('resize', fit); fit();
+  var h = (location.hash || '').replace('#', '').split('.');
+  var st = parseInt(h[0], 10);
+  show(isNaN(st) ? 0 : st - 1);
+  if (h[1]) { f = Math.min(parseInt(h[1], 10) || 0, maxFrag(slides[i])); paintFrags(); }
+  setTimeout(function () { hint.style.opacity = '0'; }, 4000);
+})();
+</script>
+</body>
+</html>

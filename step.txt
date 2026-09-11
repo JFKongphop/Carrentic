@@ -1,0 +1,24 @@
+CARRENTIC — DEMO CLICKS (4 pages)
+=================================
+
+Start: open  http://localhost:3001
+
+
+Step 1  →  Landing  (/)
+  Click  "Enter the fleet"
+
+
+Step 2  →  Tokenize  (/issue)
+  Click  "Tokenize a car"  (left sidebar)
+  Click  the issue button
+  Wait for it to finish, click the HashScan link
+
+
+Step 3  →  Fleet  (/fleet)
+  Click  "Fleet"  (left sidebar)
+  Show the car, the value, and the owners
+
+
+Step 4  →  Owners & rent  (/accounts)
+  Click  "Owners & rent"  (left sidebar)
+  Show who owns shares and their rent

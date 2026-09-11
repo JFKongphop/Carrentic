@@ -1,0 +1,7 @@
+{
+  "name": "@openledger-cfo/tsconfig",
+  "private": true,
+  "files": [
+    "*.json"
+  ]
+}

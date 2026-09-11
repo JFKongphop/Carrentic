@@ -50,3 +50,5 @@ cfo.db*
 *.png
 
 hedera-prev-tokenization-winner
+
+!covers/*.png

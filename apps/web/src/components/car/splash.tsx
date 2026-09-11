@@ -53,9 +53,7 @@ function Fleet() {
 
   const current = FLEET[idx];
   return (
-    <div className="bg-card/40 relative min-h-[46vh] overflow-hidden md:min-h-0">
-      <AetherNetwork className="absolute inset-0 h-full w-full" />
-
+    <div className="relative min-h-[46vh] overflow-hidden md:min-h-0">
       {/* the sliding card: car + caption move together */}
       <div ref={cardRef} className="absolute inset-0">
         <iframe
@@ -97,8 +95,12 @@ export function Splash() {
 
   return createPortal(
     <div className="bg-background text-foreground fixed inset-0 z-[9999] flex flex-col overflow-hidden md:grid md:grid-cols-[0.92fr_1.08fr]">
-      {/* LEFT — the story (same cyberpunk ground as the right, but static) */}
-      <div className="bg-card/40 flex flex-col justify-center gap-7 px-8 py-12 md:px-14">
+      {/* the cursor-reactive cyberpunk network, spanning the whole page behind
+      both columns */}
+      <AetherNetwork className="pointer-events-none absolute inset-0 -z-10 h-full w-full" />
+
+      {/* LEFT — the story */}
+      <div className="flex flex-col justify-center gap-7 px-8 py-12 md:px-14">
         <span className="text-accent flex items-center gap-2 text-[15px] font-semibold lowercase">
           <span className="border-border grid size-8 place-items-center rounded-md border">
             <OlLogo size={16} />
