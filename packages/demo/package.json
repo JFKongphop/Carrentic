@@ -1,0 +1,35 @@
+{
+  "name": "@openledger-cfo/demo",
+  "description": "The demo dataset generator, its invariants, and the committed dataset",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "demo": "pnpm with-env tsx src/main.ts",
+    "demo:generate": "pnpm with-env tsx src/generate.ts",
+    "empty": "pnpm with-env tsx src/empty.ts",
+    "format": "prettier --check . --ignore-path ../../.gitignore --ignore-path .prettierignore",
+    "lint": "eslint --flag unstable_native_nodejs_ts_config",
+    "reset": "pnpm with-env tsx src/reset.ts",
+    "typecheck": "tsc --noEmit",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@openledger-cfo/db": "workspace:*",
+    "@openledger-cfo/openledger": "workspace:*",
+    "es-toolkit": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@openledger-cfo/eslint-config": "workspace:*",
+    "@openledger-cfo/prettier-config": "workspace:*",
+    "@openledger-cfo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "prettier": "@openledger-cfo/prettier-config"
+}
