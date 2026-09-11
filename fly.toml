@@ -1,37 +1,32 @@
-# Fly.io config for Carrentic. Change `app` to your Fly app name (or let
-# `fly launch` fill it in). Deploy with `fly deploy`.
-app = "carrentic"
-primary_region = "sin"   # pick the region nearest you / the judges
+# fly.toml app configuration file generated for carrentic on 2026-09-11T21:03:00Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'carrentic'
+primary_region = 'sin'
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = 'Dockerfile'
 
-# Non-secret config. Secrets (keys) go via `fly secrets set ...` — never here.
 [env]
-  PORT = "3001"
-  DB_PATH = "/data/cfo.db"
-  HEDERA_NETWORK = "testnet"
-  OPENAI_MODEL = "gpt-4o-mini"
+  DB_PATH = '/data/cfo.db'
+  HEDERA_NETWORK = 'testnet'
+  OPENAI_MODEL = 'gpt-4o-mini'
+  PORT = '3001'
 
 [http_service]
   internal_port = 3001
   force_https = true
-  auto_stop_machines = "suspend"
+  auto_stop_machines = 'suspend'
   auto_start_machines = true
-  min_machines_running = 1   # keep one warm so there's no cold-start during a demo
+  min_machines_running = 1
 
   [http_service.concurrency]
-    type = "requests"
+    type = 'requests'
     hard_limit = 200
     soft_limit = 150
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "1gb"   # the 3D build + node need headroom; bump to 2gb if a build OOMs
-
-# Optional: persist the SQLite DB across deploys. Create the volume first:
-#   fly volumes create carrentic_data --size 1 --region sin
-# then uncomment:
-# [mounts]
-#   source = "carrentic_data"
-#   destination = "/data"
+  size = 'shared-cpu-1x'
+  memory = '1gb'
