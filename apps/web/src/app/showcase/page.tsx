@@ -18,6 +18,8 @@ function ShowcaseInner() {
   const ring = params.get("ring") === "1";
   const paint = params.get("paint") === "1";
   const spin = params.get("spin") === "1";
+  const speedParam = Number(params.get("speed"));
+  const spinSpeed = Number.isFinite(speedParam) && speedParam > 0 ? speedParam : undefined;
   const [car, setCar] = useState<CarKey>(initial);
 
   // The parent swaps the car via postMessage (no iframe reload → no flash).
@@ -73,6 +75,7 @@ function ShowcaseInner() {
           transparent={transparent}
           paint={paint}
           spin={spin}
+          spinSpeed={spinSpeed}
           className="absolute inset-0"
         />
       )}

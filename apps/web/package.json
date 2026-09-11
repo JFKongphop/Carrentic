@@ -65,5 +65,8 @@
     "tailwindcss": "catalog:",
     "typescript": "catalog:"
   },
-  "prettier": "@openledger-cfo/prettier-config"
+  "prettier": "@openledger-cfo/prettier-config",
+  "engines": {
+    "node": "22.x"
+  }
 }

@@ -19,7 +19,7 @@ import { AetherNetwork } from "./aether-network";
 const FLEET: readonly { car: CarKey; name: string; spec: string }[] = [
   { car: "porsche", name: "Porsche 911", spec: "$180k asset · ~$140/day rent" },
   { car: "mclaren720", name: "McLaren 720S", spec: "$300k asset · ~$260/day rent" },
-  { car: "bmwM8", name: "BMW M8", spec: "$130k asset · ~$110/day rent" },
+  { car: "bmwE34", name: "BMW E34", spec: "$130k asset · ~$110/day rent" },
   { car: "mustang", name: "Ford Mustang GT", spec: "$55k asset · ~$75/day rent" },
 ];
 

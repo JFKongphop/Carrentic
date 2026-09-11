@@ -29,7 +29,6 @@ export const CARS = {
   audiA8: { label: "Audi A8", file: "/models/audiA8.gltf" },
   benz1: { label: "Mercedes-Benz", file: "/models/benz1.gltf" },
   bmwE34: { label: "BMW E34", file: "/models/bmwE34.gltf" },
-  bmwM8: { label: "BMW M8", file: "/models/bmwM8.gltf" },
 } as const;
 
 export type CarKey = keyof typeof CARS;
@@ -49,7 +48,7 @@ function Model({ url, paint = false }: { url: string; paint?: boolean }) {
 export const RING_CARS: readonly CarKey[] = [
   "porsche",
   "mclaren720",
-  "bmwM8",
+  "bmwE34",
   "mustang",
 ];
 
