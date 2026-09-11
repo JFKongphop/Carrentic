@@ -1,132 +1,121 @@
-<h1 align="center">
-  <strong>OpenLedger CFO</strong>
-</h1>
-
 <p align="center">
-  OpenLedger CFO tells you what to do about your money, powered by
-  <a href="https://www.npmjs.com/package/@aquartier/openledger">OpenLedger</a>,
+  <img src="covers/icon.png" alt="Carrentic" width="120" />
 </p>
 
-<p align="center">
-  A terminal with AI agent, and double-entry ledger that using your bank statement data, running privately on your machine.
-</p>
+# Carrentic — Own the car. Earn its rent.
 
-<p align="center">
-  <img src=".github/screenshot.png" alt="OpenLedger CFO terminal: vitals, cash flow, action queue, trajectory, and the CFO chat" width="100%" />
-</p>
+Carrentic turns a **real car into shares**. A car becomes an ERC-3643 security
+token on Hedera; people buy a share, the car is rented out, and the rent flows
+back to every owner on-chain, pro-rata to what they hold. An **AI fleet manager**
+watches the car and drafts the on-chain actions, while the car's value and the
+rent owners receive are priced against a live market through **Uniswap** — not a
+hard-coded number.
 
-OpenLedger CFO helps you visualize your finances: ask the CFO where the money goes, your runway, your mortgage, and your savings rate.
+Tokenizing a car is a single click: no wallet, the platform signs as the issuer
+the way a real securities issuer does, and every step settles on **Hedera
+testnet**, verifiable on HashScan.
 
-## Built on OpenLedger
-
-Every number on screen is derived, at request time, from [OpenLedger](https://www.npmjs.com/package/@aquartier/openledger): a deterministic, double-entry ledger CLI that keeps your financial data in a local database.
-
-### OpenLedger enabled four things:
-
-- **Double-entry honesty**: every transaction debits one account and credits another. Money never appears from nowhere.
-- **Local and private**: statements, balances, and history stay in your machine, masks PII before reach outbound network.
-- **Deterministic and auditable**: the CLI emits with a structured JSON data with strict and deterministic exit-code contract.
-- **Agentic-ready by design**: OpenLedger was built to be driven by an AI. This repo is the working proof.
-
-## Running Demo
-
-You need three things. Check each one:
-
-```bash
-node --version     # ^22.21 or >=24 (Node 23 is not supported)
-pnpm --version     # pnpm package management
-oled --version     # npm install -g @aquartier/openledger
-```
-
-Then:
-
-```bash
-# clone this project
-git clone https://github.com/phureewat29/openledger-cfo.git
-cd openledger-cfo
-
-# install the OpenLedger CLI
-npm install -g @aquartier/openledger
-
-# install dependencies
-pnpm install
-
-# load the demo dataset (or start empty: pnpm bootstrap:empty)
-pnpm bootstrap
-
-# serve the production build
-pnpm build && pnpm serve
-
-```
-
-You should see the demo dataset. If a pane says the ledger is not initialized, run `pnpm bootstrap` again and watch its checks print.
-
-To wake the CFO chat, press **AI Gateway Config** in the chat pane and point it at any OpenAI-compatible gateway. Endpoint, API key, and model are saved in the app and take effect at once — no env file, no restart.
-
-`pnpm bootstrap` destructively resets the repo-local ledger in `.oled/` to the demo dataset. It never touches `~/.oled`; the loader refuses to run against anything but this repo's config, and that guard is in code, not convention.
-
-## The AI layer
-
-Two agents, both built on [deepagents](https://www.npmjs.com/package/deepagents) over any OpenAI-compatible gateway. Configure it in the app — **AI Gateway Config** in the chat pane: base URL, API key, and a model id defaulting to `qwen/qwen3.8-27b`. The settings live in the local control plane, and the test button proves the connection before you save:
-
-- **The CFO Agent**
-- **The Ingest Agent**
+Built for **ETHGlobal** — Hedera (Tokenization of Anything), Uniswap, and OpenAI.
 
 ## How it works
 
-```
-apps/web (Next.js 16)                    packages
-+--------------------------------+       +--------------------------------+
-| pages: server components,      | tRPC  | api: routers over the ledger   |
-| derived per request            +------>+ and the SQLite control plane   |
-|                                |       +---------------+----------------+
-| chat + ingest runs:            |                       |
-| route handlers, SSE, abort     |       +---------------v----------------+
-+--------------------------------+       | openledger: typed connector,   |
-                                         | two serialized exec lanes,     |
-                                         | Result unions, masked secrets  |
-                                         +---------------+----------------+
-                                                         |
-                                             spawns `oled` per call
+A car is issued as an ERC-3643 security token through the Asset Tokenization
+Studio (ATS). The whole deploy-and-mint chain runs **server-side and
+operator-signed** over the Hashio JSON-RPC relay — there is no wallet in the
+flow, because the platform signs as the issuer. Once a car is tokenized, its
+value and the rent paid to owners are marked to live market prices through the
+Uniswap Trading API, and an OpenAI fleet manager reasons over the position and
+drafts the next on-chain action for the owner to approve.
+
+## Core flow
+
+```text
+tokenize a car
+  -> deploy an ERC-3643 token on Hedera (operator-signed, no wallet)
+  -> grant KYC / issuer / SSI roles, register the issuer, grant KYC to treasury
+  -> mint 1,000 ownership shares to the treasury
+  -> owners hold KYC-gated shares (non-compliant transfers revert)
+  -> the car is rented out
+  -> rent is priced through Uniswap and split pro-rata
+  -> the AI fleet manager drafts the on-chain payout
+  -> owners are paid on-chain, verifiable on HashScan
 ```
 
-## Development
+## Sponsor responsibilities
+
+- **Hedera** — a real-world asset (a car) as a compliant ERC-3643 token via ATS,
+  deployed and minted server-side over the Hashio relay, verifiable on HashScan
+  (example car token: `0.0.10478278` on testnet).
+- **Uniswap** — the car's NAV and the rent owners are paid are computed live
+  through the Uniswap Trading API (`computeNav`, `priceUsd`, `quoteRentPayout`),
+  so the dashboard's numbers are market prices, not fixed figures.
+- **OpenAI** — the AI fleet manager reads the car's position, answers questions
+  about value/owners/rent, and drafts the on-chain actions owners act on.
+
+## Repository layout
+
+| Path | What it is |
+|---|---|
+| [`apps/web/`](apps/web) | Next.js app — splash, fleet, tokenize (`/issue`), owners & rent, the isolated 3D `/showcase`, and the API routes (`/api/issue`, `/api/chat`). |
+| `packages/hedera/` | ERC-3643 / ATS deploy + mint over Hashio (ethers v6, operator-signed) and Mirror Node reads. |
+| `packages/uniswap/` | NAV and rent pricing through the Uniswap Trading API. |
+| `packages/agent/` | The AI fleet manager (LangChain + OpenAI). |
+| `packages/fund/` · `packages/db/` · `packages/api/` | Car/fund model, persistence, and the app's data gateway. |
+| `packages/ui/` | Shared UI + fonts (Geist Mono). |
+| `tooling/` | Shared `tsconfig`, ESLint, and Prettier config packages. |
+| [`deck/carrentic.html`](deck/carrentic.html) | The 1-minute pitch deck (self-contained). |
+| [`DEPLOY.md`](DEPLOY.md) · [`step.txt`](step.txt) | Vercel deploy guide and the demo click-through. |
+
+## Tech stack
+
+TypeScript, Next.js (App Router) + React 19, react-three-fiber for the 3D cars,
+a pnpm + Turborepo monorepo — plus `@hashgraph/asset-tokenization-*` and
+`ethers` v6 for Hedera, the Uniswap Trading API for pricing, and
+`@langchain/openai` for the agent.
+
+## Running it
+
+Requires **Node 22** and a filled-in `.env` (copy from `.env.example`; the real
+`.env` stays gitignored).
 
 ```bash
-pnpm dev         # start local development
-pnpm typecheck   # builds the dist-publishing packages first, then checks everything
-pnpm lint        # eslint across the workspace
-pnpm format      # prettier check
-pnpm build       # full production build
+# from the repo root
+pnpm install
+pnpm -F web build
+pnpm -F web start      # production server on http://localhost:3001
 ```
 
-## Layout
+For development with hot reload:
 
-```
-apps/
-  web/            the terminal app
-    src/app/      routes; each route pairs page and skeleton through one grid.ts
-    src/components, src/domain, src/server, src/trpc
-packages/
-  openledger/     typed connector over the oled CLI, plus the smoke harness
-  api/            tRPC routers
-  db/             drizzle schema for the plan tables and the AI gateway configuration
-  agent/          cfo and ingest personas, tools, and the stream bridge
-  demo/           the dataset generator, its invariants, and data/life.json
-  ui/             ui and design system
-tooling/          shared toolchain
+```bash
+pnpm -F web dev        # http://localhost:3001
 ```
 
-## Troubleshooting
+**Environment variables** (see `.env.example`): `HEDERA_NETWORK`,
+`HEDERA_OPERATOR_ID`, `HEDERA_OPERATOR_EVM`, `HEDERA_OPERATOR_KEY`,
+`HEDERA_COUPON_TOPIC`, `UNISWAP_API_KEY`, `OPENAI_API_KEY`, `OPENAI_MODEL`.
 
-- **`oled` was not found**: `npm install -g @aquartier/openledger`, then `oled --version`.
-- **Tables missing or empty**: `pnpm db:push` recreates the schema in `cfo.db`, and `pnpm bootstrap` reseeds it.
-- **Node 23**: not in the support range. Use 22.21+ or 24+ (`.nvmrc` pins 22.21).
-- **Ingest cannot read a document**: image-only PDFs need OCR — enable it under **AI Gateway Config** and point it at any OpenAI-compatible vision endpoint — share the gateway credentials, or run one locally (the form defaults to `typhoon-ocr1.5-2b` at `http://127.0.0.1:1234`). The settings are forwarded to `.oled/config.json`, and the demo loader preserves them across resets; without OCR only text-layer PDFs work.
-- **Ingest put a record in the wrong account**: tell the CFO in the chat pane on the right. The agent can move transactions, rename accounts, and correct balances in the ledger.
-- **Typecheck errors that make no sense**: a stale `dist/`; run `pnpm typecheck` from the root so the packages rebuild first.
-- **Worried about your real ledger**: this repo only ever runs `oled` with `--config` pointing at its own `.oled/`; your `~/.oled` is never read or written.
+## Demo
 
-## License
+Open `http://localhost:3001` and follow the four pages (also in
+[`step.txt`](step.txt)):
 
-AGPL-3.0. Copyright (c) 2026 Phureewat A. See [LICENSE](LICENSE).
+1. **Landing** (`/`) — the pitch; click **Enter the fleet**.
+2. **Tokenize** (`/issue`) — one click deploys the ERC-3643 token and mints the
+   shares; open the **HashScan** link.
+3. **Fleet** (`/fleet`) — the live token, its value (marked via Uniswap), and
+   the co-owners.
+4. **Owners & rent** (`/accounts`) — who owns shares and their pro-rata rent.
+
+## Deploy
+
+Deploys to Vercel with the config in `apps/web/vercel.json`. Set **Root
+Directory = `apps/web`**, add the environment variables above, and deploy. Full
+steps and caveats (the `/issue` timeout on the free plan, key rotation) are in
+[`DEPLOY.md`](DEPLOY.md).
+
+## Notes
+
+- Hedera work stays on **testnet**. Keep no mainnet key on a public deploy —
+  `/api/issue` signs with the operator key.
+- No credentials belong in this repository; secrets live only in `.env`.
