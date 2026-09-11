@@ -40,7 +40,10 @@ export default async function AppLayout(props: { children: React.ReactNode }) {
               <div className="grid min-h-0 grid-cols-[3.5rem_minmax(0,1fr)] lg:grid-cols-[3.5rem_minmax(0,1fr)_clamp(320px,25vw,480px)]">
                 <Rail
                   badges={badges.ok ? badges.value : NO_BADGES}
-                  ledgerBad={!chrome.ok || chrome.value.stale}
+                  // Only a real staleness warning (ledger present but behind) —
+                  // not "ledger unavailable", which is the normal state on a
+                  // deploy without the oled CLI.
+                  ledgerBad={chrome.ok && chrome.value.stale}
                 />
                 <main
                   id="main"
