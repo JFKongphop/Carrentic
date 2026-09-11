@@ -67,8 +67,9 @@ html, body {
   line-height: 0.8; letter-spacing: -0.05em; color: rgba(184,242,74,0.11); z-index: -1; }
 
 /* slide-1 hero: the live Porsche, auto-rotating. It's a transparent iframe to
-   the running app (/showcase), so the network shows around it. Needs the app
-   on :3001; if it's down, this area is simply empty. */
+   the deployed app (carrentic.fly.dev/showcase), so it works without a local
+   server — it just needs internet + the Fly app up. If offline, swap the src
+   for the bundled ./porsche.png (a still). */
 .hero-car { position: absolute; right: -20px; top: 50%; transform: translateY(-50%); z-index: -1;
   width: 920px; height: 760px; border: 0; background: #080b09; pointer-events: none;
   -webkit-mask-image: radial-gradient(58% 58% at 50% 50%, #000 34%, transparent 100%);
@@ -140,7 +141,7 @@ html, body {
 
     <!-- 1. TITLE -->
     <section class="slide s-title" data-notes='{"vo":"This is Carrentic — own the car, earn its rent.","t":"0:00-0:06"}'>
-      <iframe class="hero-car" src="http://localhost:3001/showcase?car=porsche&transparent=1&paint=1&spin=1&speed=6" title="Porsche 911" scrolling="no"></iframe>
+      <iframe class="hero-car" src="https://carrentic.fly.dev/showcase?car=porsche&transparent=1&paint=1&spin=1&speed=6" title="Porsche 911" scrolling="no"></iframe>
       <div class="brand">
         <div class="c-mark"><svg viewBox="0 0 256 256"><path d="M178.8 71.5A76 76 0 1 0 178.8 184.5" fill="none" stroke="#b8f24a" stroke-width="34" stroke-linecap="round"/></svg></div>
         <span class="wm">carrentic<span class="dot">.</span></span>
