@@ -4,7 +4,41 @@ import { z } from "zod/v4";
 import { createAgent } from "@openledger-cfo/agent";
 import { readGateway } from "@openledger-cfo/api";
 
+import { ledgerHead } from "~/server/head";
+
 export const maxDuration = 300;
+
+/**
+ * Tools that read or write the `oled` ledger. When the ledger isn't reachable
+ * (any deploy without the `oled` CLI installed), we drop them so the manager
+ * still answers from live on-chain + Uniswap data via getFund, instead of
+ * calling a tool that would fail. getFund is always kept.
+ */
+const LEDGER_TOOLS = [
+  "payCoupon",
+  "onboardInvestor",
+  "redeemAtMaturity",
+  "rebalance",
+  "getReport",
+  "listTransactions",
+  "listAccounts",
+  "matchAccounts",
+  "listFiles",
+  "createAccount",
+  "updateAccount",
+  "addTransaction",
+  "updateTransaction",
+  "adjustBalance",
+];
+
+const ledgerReachable = async (): Promise<boolean> => {
+  try {
+    await ledgerHead();
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 const BodySchema = z.object({
   messages: z.array(z.custom<UIMessage>()),
@@ -34,10 +68,18 @@ export async function POST(request: Request) {
   try {
     const body = BodySchema.parse(await request.json());
 
+    // Keep the ledger tools only where the ledger actually answers (local dev).
+    // On a deploy, drop them and steer the manager to getFund-only.
+    const ledgerOk = await ledgerReachable();
+    const system = ledgerOk
+      ? FUND_BRIEFING
+      : `${FUND_BRIEFING} The ledger is not available in this environment, so use only getFund and answer questions about the car's value, treasury, shares and owners. Do not offer to pay rent, distribute, redeem or book anything here.`;
+
     const agent = createAgent("cio", {
       gateway,
-      system: FUND_BRIEFING,
+      system,
       followUps: true,
+      excludeTools: ledgerOk ? [] : LEDGER_TOOLS,
     });
     return agent.stream(body.messages, request.signal);
   } catch (error) {

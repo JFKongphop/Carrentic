@@ -50,7 +50,10 @@ export default async function AppLayout(props: { children: React.ReactNode }) {
                   {props.children}
                 </main>
                 <ChatPane
-                  ledgerOk={chrome.ok}
+                  // The manager no longer waits on the ledger — it answers from
+                  // live on-chain + Uniswap data (getFund). It's gated only by
+                  // whether the AI gateway is configured.
+                  ledgerOk={true}
                   ai={gateway && { model: gateway.model }}
                   openers={pickSuggestions()}
                 />
