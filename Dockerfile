@@ -24,9 +24,7 @@ RUN pnpm -F web exec next build
 
 # ---- runtime stage: slim image, no build tools ----
 FROM node:22-bookworm-slim AS runner
-ENV PNPM_HOME="/pnpm" PATH="/pnpm:$PATH"
-RUN corepack enable
-WORKDIR /app
+WORKDIR /app/apps/web
 
 # Bring the built app + installed deps (incl. the compiled better-sqlite3 binary).
 COPY --from=build /app /app
@@ -41,4 +39,6 @@ ENV DB_PATH=/data/cfo.db
 RUN mkdir -p /data
 
 EXPOSE 3001
-CMD ["sh", "-c", "pnpm -F web exec next start --port ${PORT:-3001} --hostname 0.0.0.0"]
+# Run Next directly with node — no pnpm/corepack at boot, so nothing downloads
+# before the app can listen and pass the health check.
+CMD ["sh", "-c", "node node_modules/next/dist/bin/next start --port ${PORT:-3001} --hostname 0.0.0.0"]
