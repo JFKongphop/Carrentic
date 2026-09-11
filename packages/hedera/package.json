@@ -1,0 +1,48 @@
+{
+  "name": "@openledger-cfo/hedera",
+  "description": "Hedera adapter — Asset Tokenization Studio (ATS) issuance & lifecycle, behind a swappable port",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./ats": {
+      "types": "./dist/ats-adapter.d.ts",
+      "default": "./src/ats-adapter.ts"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./src/server.ts"
+    }
+  },
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "tsc",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint --flag unstable_native_nodejs_ts_config",
+    "verify": "tsx scripts/verify-mirror.ts",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@hashgraph/asset-tokenization-sdk": "^8.0.0",
+    "@hiero-ledger/sdk": "^2.79.0",
+    "ethers": "^6.17.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@openledger-cfo/eslint-config": "workspace:*",
+    "@openledger-cfo/prettier-config": "workspace:*",
+    "@openledger-cfo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "dotenv": "^16.4.5",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "prettier": "@openledger-cfo/prettier-config"
+}
