@@ -1,0 +1,77 @@
+ETHGlobal prize-application answers — Carrentic
+Copy each block into the matching field. (Star ratings are my suggestion — set
+them to whatever you actually felt.)
+
+
+================================================================
+HEDERA — $15,000
+================================================================
+
+--- How are you using this Protocol / API? (why you're applicable) ---
+Carrentic tokenizes a real-world asset — a car — as a compliant ERC-3643
+security token on Hedera, using the Asset Tokenization Studio. The whole
+deploy-and-mint flow (deploy the token, grant KYC/issuer/SSI roles, register the
+issuer, grant KYC, issue the shares) runs server-side and operator-signed over
+the Hashio JSON-RPC relay — no wallet, the platform signs as the issuer — and
+every transaction is verifiable on HashScan. Owners then earn the car's rent
+on-chain. That's tokenization of a genuine real-world asset, end to end on
+Hedera.
+
+--- Link to the line of code where the tech is used ---
+https://github.com/JFKongphop/Carrentic/blob/main/packages/hedera/src/ats-deploy.ts#L118
+(deployBondOnChain — the ATS factory `deployBond` call is at L190 and the
+KYC/role mint chain at L242; called from the /issue API route:
+https://github.com/JFKongphop/Carrentic/blob/main/apps/web/src/app/api/issue/route.ts#L50 )
+
+--- How easy is it to use? (1–10) ---
+7 / 10
+
+--- Additional feedback for the Sponsor ---
+Powerful stack, but two things cost us real time and would be worth a doc note.
+(1) Passing Hedera "long-zero" addresses (toSolidityAddress) into the ATS
+factory makes deployBond revert with no logs — switching to the canonical EVM
+addresses from the Mirror Node fixed it instantly. (2) The factory rejects an
+ISIN with a bad check digit (WrongISINChecksum), which wasn't obvious. Finally,
+the official ATS SDK is browser/wallet-oriented; a documented server-side,
+operator-signed path (calling the factory's deployBond directly via ethers over
+Hashio, as we did) would help any team that wants one-click, wallet-less
+issuance.
+
+
+================================================================
+UNISWAP FOUNDATION — $5,000
+================================================================
+
+--- How are you using this Protocol / API? (why you're applicable) ---
+Carrentic uses the Uniswap Trading API as a live price oracle for a tokenized
+real-world asset. Every USD figure — the car's NAV, the treasury value, and the
+rent paid out to owners — is marked to Uniswap prices via token→USDC quotes,
+not hard-coded, so the asset is valued against real market liquidity on mainnet.
+
+--- Link to the line of code where the tech is used ---
+https://github.com/JFKongphop/Carrentic/blob/main/packages/uniswap/src/quote.ts#L40
+(the Trading API POST /quote call; priceUsd and quoteRentPayout in the same
+file; NAV in
+https://github.com/JFKongphop/Carrentic/blob/main/packages/uniswap/src/nav.ts#L47 )
+
+--- How easy is it to use? (1–10) ---
+8 / 10
+
+--- Additional feedback for the Sponsor ---
+A single POST /quote with an x-api-key header was enough to get real,
+deep-liquidity prices — no SDK, no pool math — which made "mark this to the
+market" a one-function change. Two rough edges: (1) the API is execution-shaped
+(quote → approve → Permit2 → swap), so a read-only consumer gets fields it
+doesn't need — a documented indicative/spot-price path for oracle-style use
+would be great; (2) quote amounts come back in base units, and converting an
+18-decimal token (WETH) straight to a JS Number overflows precision, so we had
+to scale with pow10 first — a decimals-safe helper or a "price a token in USD in
+10 lines" quickstart would smooth this out. Full notes in FEEDBACK.md.
+
+
+----------------------------------------------------------------
+NOTE
+----------------------------------------------------------------
+- The GitHub links assume the repo stays at github.com/JFKongphop/Carrentic on
+  the `main` branch. For a permanent link, open the file on GitHub, press "y"
+  to get the commit-pinned URL, then add the #L line anchor.

@@ -1,0 +1,72 @@
+Carrentic — demo video script (short / slow pace)
+Part 1: deck ≤ 1:00.   Part 2: live app ≤ 3:00.
+SAY = say it slowly.  DO = screen action.  Pause where it says (pause).
+
+
+================================================================
+PART 1 — THE DECK  (≤ 1:00)
+================================================================
+Fullscreen the deck. One line per slide. Advance with → .
+
+SLIDE 1 · Title
+  SAY: "This is Carrentic. Own a share of a real car — and earn its rent."
+
+SLIDE 2 · The asset
+  SAY: "It starts with a real car. A real asset, worth real money."
+
+SLIDE 3 · 01 Tokenize
+  SAY: "First, we tokenize it — an ERC-3643 token on Hedera. One click."
+
+SLIDE 4 · 02 Own a share
+  SAY: "People buy shares. KYC-gated owners, enforced by the token."
+
+SLIDE 5 · 03 Earn its rent
+  SAY: "The car is rented. The rent goes back to owners, on-chain. Priced by Uniswap."
+
+SLIDE 6 · Live
+  SAY: "And it's live on Hedera."
+
+SLIDE 7 · Close
+  SAY: "Let me show you."
+
+
+================================================================
+PART 2 — THE LIVE APP  (≤ 3:00)
+================================================================
+
+LANDING  (/)
+  DO:  landing page.
+  SAY: "This is Carrentic — own the car, earn its rent."
+  DO:  click "Enter the fleet".
+
+TOKENIZE  (/issue)
+  DO:  click "Tokenize a car". The form is already filled.
+  SAY: "One click tokenizes a real car on Hedera. No wallet."
+  DO:  click "Tokenize car".
+  SAY: "It's deploying the token and minting the shares." (pause — let it run)
+  DO:  on success, click the CAR TOKEN link → HashScan.
+  SAY: "There it is on HashScan. A real token on Hedera." (close tab)
+
+FLEET  (/fleet)
+  DO:  sidebar → Fleet.
+  SAY: "Here's the car. Its value is priced live by Uniswap." (pause)
+  SAY: "A thousand shares. Three owners."
+
+OWNERS & RENT  (/accounts)
+  DO:  sidebar → Owners & rent.
+  SAY: "The three co-owners, and their share of the rent." (pause)
+
+AI MANAGER  (chat)
+  DO:  type in the chat: "pay out this month's rent".
+  SAY: "And the AI manager pays out the rent for me." (pause — let it answer)
+
+CLOSE
+  SAY: "A real car, tokenized on Hedera. Rent paid on-chain. That's Carrentic."
+
+
+----------------------------------------------------------------
+TIPS
+----------------------------------------------------------------
+- Run /issue once before recording so the second deploy is faster.
+- It's fine to stay silent while the tokenize runs and while pages load —
+  the screen carries it. Speak only the short lines above.
